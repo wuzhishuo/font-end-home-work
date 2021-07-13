@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>转换黑白图片</title>
+    <style>
+      img {
+        width: 400px;
+        margin: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <input
+      type="file"
+      accept="image/png, image/jpeg"
+      onchange="convert(this)"
+    />
+    <div>
+      <img class="img-original" />
+      <img class="img-converted" />
+    </div>
+    <script>
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      function convert(input) {
+        const imgOriginal = document.getElementsByClassName('img-original')[0];
+
+        let img = input.files[0];
+        let reader = new FileReader();
+        reader.readAsDataURL(img);
+
+        reader.onload = function() {
+          imgOriginal.src = reader.result;
+        };
+        imgOriginal.onload = function() {
+          let img = getImgData(imgOriginal);
+          let data = img.data;
+
+          for (i = 0, len = data.length; i < len; i += 4) {
+            red = data[i];
+            green = data[i + 1];
+            blue = data[i + 2];
+
+            average = (red + green + blue) / 3;
+
+            data[i] = average;
+            data[i + 1] = average;
+            data[i + 2] = average;
+          }
+          const imgConverted = document.getElementsByClassName(
+            'img-converted'
+          )[0];
+          ctx.putImageData(img, 0, 0);
+          imgConverted.src = canvas.toDataURL();
+        };
+      }
+
+      function getImgData(img) {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        return ctx.getImageData(0, 0, img.width, img.height);
+      }
+    </script>
+  </body>
+</html>
