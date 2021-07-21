@@ -1,5 +1,5 @@
 import { compileToRenderFunction } from './compiler/index.js';
-import { createElement, createTextNode } from './vdom/vnode.js';
+import { createElementNode, createTextNode } from './vdom/vnode.js';
 
 let html = `<div class="newslist" style="color: #000;font-size: 14px;">
 <div class="img" v-if="info.showImage"><img src="{{image}}"/></div>
@@ -16,7 +16,7 @@ function Vue() {
 
 Vue.prototype._c = function() {
   console.log(arguments);
-  return createElement(...arguments);
+  return createElementNode(...arguments);
 };
 
 Vue.prototype._s = function(value) {
@@ -28,7 +28,40 @@ Vue.prototype._v = function(text) {
   return createTextNode(text);
 };
 
-const render = compileToRenderFunction(html);
+function createElement(vnode) {
+  const { tag, props, children, text } = vnode;
+  if (typeof tag === 'string') {
+    vnode.el = document.createElement(tag);
+    updateProps(vnode);
+    children.forEach(child => {
+      vnode.el.appendChild(createElement(child));
+    });
+  } else {
+    vnode.el = document.createTextNode(text);
+  }
+
+  return vnode.el;
+}
+
+function updateProps(vnode) {
+  const el = vnode.el;
+  const props = vnode.props || {};
+
+  for (let key in props) {
+    if (key === 'style') {
+      for (let sKey in props.style) {
+        el.style[sKey] = props.style[sKey];
+      }
+    } else if (key == 'class') {
+      el.className = props[key];
+    } else {
+      el.setAttribute(key, props[key]);
+    }
+  }
+}
+
+const renderVnode = compileToRenderFunction(html);
 let vm = new Vue();
-const vnode = render.call(vm);
+const vnode = renderVnode.call(vm);
+document.body.appendChild(createElement(vnode));
 console.log(vnode);

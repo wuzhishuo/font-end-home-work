@@ -1,4 +1,4 @@
-function createElement(tag, attrs = {}, ...children) {
+function createElementNode(tag, attrs = {}, ...children) {
   return vnode(tag, attrs, children);
 }
 
@@ -15,4 +15,4 @@ function vnode(tag, props, children, text) {
   };
 }
 
-export { createElement, createTextNode };
+export { createElementNode, createTextNode };

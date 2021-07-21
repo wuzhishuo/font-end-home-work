@@ -51,7 +51,7 @@ function generateChild(node) {
       if (index > lastIndex) {
         textAttr.push(`${text.slice(lastIndex, index)}`);
       }
-      textAttr.push(`_s(${match[1].trim()})`);
+      textAttr.push(`_v(_s(${match[1].trim()}))`);
       lastIndex = index + match[0].length;
     }
 
